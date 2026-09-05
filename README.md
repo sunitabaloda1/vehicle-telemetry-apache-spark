@@ -44,7 +44,7 @@ The project uses the:
 
 Source:
 
-**Kaggle – tejalaveti2306/vehicle-maintenance-telemetry-data**
+Kaggle – https://www.kaggle.com/datasets/tejalaveti2306/vehicle-maintenance-telemetry-data
 
 The dataset contains **1,970 historical vehicle records** covering multiple vehicle brands and telemetry-related attributes.
 
@@ -71,15 +71,25 @@ The proposed platform follows a layered distributed architecture separating data
 The logical flow is:
 
 Vehicle Sensors
+
 ↓
+
 Data Ingestion
+
 ↓
+
 Distributed Storage
+
 ↓
+
 Apache Spark Processing
+
 ↓
+
 Analytics and Aggregation
+
 ↓
+
 Fleet Monitoring / Predictive Maintenance / Operational Applications
 
 The architecture is designed to support scalability and fault tolerance by distributing processing across multiple worker nodes rather than depending on a single high-capacity machine.
@@ -173,26 +183,26 @@ The project also demonstrates the logical MapReduce processing model for telemet
 The processing flow is:
 
 Split
-↓
+--> 
 Map
-↓
+--> 
 Shuffle
-↓
+-->
 Sort
-↓
+-->
 Reduce
-↓
+--> 
 Final Output
 
-For the telemetry use case, the mapper can generate key-value pairs such as:
 
-Vehicle Brand → Engine Temperature
+For the telemetry use case, the mapper can generate **key-value** pairs such as: Vehicle Brand → Engine Temperature
 
-The shuffle and sort phase groups records with the same key.
 
-The reducer then calculates an aggregated value such as average engine temperature for each vehicle brand.
+The **shuffle and sort** phase groups records with the same key.
 
-The major limitation of MapReduce for iterative analytical workloads is its disk-oriented execution model, where intermediate results are repeatedly written to storage.
+The **reducer** then calculates an aggregated value such as average engine temperature for each vehicle brand.
+
+The major limitation of **MapReduce** for iterative analytical workloads is its disk-oriented execution model, where intermediate results are repeatedly written to storage.
 
 ---
 
@@ -240,7 +250,7 @@ A wide transformation requires data to be redistributed between partitions.
 
 The project uses grouped aggregation, such as calculating average engine temperature by vehicle brand, as an example.
 
-Because records with the same key may exist in different partitions, Spark performs a shuffle before the aggregation.
+Because records with the same key may exist in different partitions, Spark performs a **shuffle before the aggregation**.
 
 This distinction is important because wide transformations introduce network communication and can create performance bottlenecks.
 
@@ -252,11 +262,7 @@ Data skew occurs when a small number of keys contain disproportionately large am
 
 The original telemetry dataset does not naturally exhibit the extreme skew required to demonstrate this problem. Therefore, the notebook intentionally creates a highly skewed workload.
 
-The simulation creates a dominant:
-
-`Delivery_Truck`
-
-category.
+The simulation creates a dominant: `Delivery_Truck` category.
 
 The resulting workload contains a significantly larger number of records for this category than for the other vehicle brands.
 
@@ -298,9 +304,7 @@ This allows the workload to be distributed across multiple partitions rather tha
 
 After salting, hash partitioning is applied using the salted key.
 
-The notebook demonstrates partitioning with:
-
-`repartition(5, "salted_key")`
+The notebook demonstrates partitioning with: `repartition(5, "salted_key")`
 
 The resulting workload is distributed across five partitions.
 
@@ -324,9 +328,7 @@ Spark uses RDD lineage to maintain the transformation history required to recons
 
 Instead of storing redundant copies of every intermediate result, Spark records how an RDD was derived from previous datasets.
 
-The notebook demonstrates lineage inspection using:
-
-`toDebugString()`
+The notebook demonstrates lineage inspection using: `toDebugString()`
 
 The lineage information illustrates the dependency chain created by Spark transformations.
 
