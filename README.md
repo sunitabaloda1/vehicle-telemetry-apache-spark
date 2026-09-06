@@ -94,6 +94,7 @@ Fleet Monitoring / Predictive Maintenance / Operational Applications
 
 The architecture is designed to support scalability and fault tolerance by distributing processing across multiple worker nodes rather than depending on a single high-capacity machine.
 
+![Vehicle Telemetry System Architecture](images/architecture_diagram.png)
 ---
 
 ## 5. Wall of Hardware and Scaling Strategy
@@ -264,6 +265,8 @@ The original telemetry dataset does not naturally exhibit the extreme skew requi
 
 The simulation creates a dominant: `Delivery_Truck` category.
 
+![Simulated Data Skew](images/data_skew.png)
+
 The resulting workload contains a significantly larger number of records for this category than for the other vehicle brands.
 
 This demonstrates how a heavily skewed key can create an executor hotspot during shuffle-intensive operations.
@@ -284,6 +287,7 @@ Delivery_Truck_4
 
 The original dominant key is therefore divided into multiple salted keys.
 
+
 The processing flow becomes:
 
 Skewed Key
@@ -298,6 +302,8 @@ Final Aggregation
 
 This allows the workload to be distributed across multiple partitions rather than concentrating all records under a single key.
 
+![Two-Stage Salting Strategy](images/salting_strategy.png)
+
 ---
 
 ## 13. Hash Partitioning
@@ -305,6 +311,8 @@ This allows the workload to be distributed across multiple partitions rather tha
 After salting, hash partitioning is applied using the salted key.
 
 The notebook demonstrates partitioning with: `repartition(5, "salted_key")`
+
+![Hash Partitioning Workload Distribution](images/hash_partitioning.png)
 
 The resulting workload is distributed across five partitions.
 
@@ -330,6 +338,8 @@ Instead of storing redundant copies of every intermediate result, Spark records 
 
 The notebook demonstrates lineage inspection using: `toDebugString()`
 
+![RDD Lineage Before Checkpointing](images/rdd_lineage.png)
+
 The lineage information illustrates the dependency chain created by Spark transformations.
 
 If a partition is lost because of executor or node failure, Spark can use the lineage information to recompute the required partition.
@@ -345,6 +355,8 @@ Long transformation chains can make lineage increasingly complex, particularly i
 The notebook constructs a deep transformation chain to simulate this condition.
 
 Checkpointing is then applied to create a stable recovery point.
+
+![RDD Lineage After Checkpointing](images/checkpointing.png)
 
 The conceptual process is:
 
